@@ -23,7 +23,7 @@ if(!require('reshape2')) {
 
 # Importing the CSV file
 # f = file.choose() # Uncomment this to choose the file interactively.
-f = "/home/obonhamcarter/Dropbox/2_teaching/0_fall2024/dataGators/lessons/01/fruits_colours.csv"
+f = "/home/obonhamcarter/Dropbox/2_teaching/0_fall2024/dataGators/dataGators_org/brainstorm/lessons/data/fruits_colours.csv"
 fruits_data <- read.csv(f)  # Update the path
 head(fruits_data)  # View the first few rows
 summary(fruits_data)  # Summary of the dataset

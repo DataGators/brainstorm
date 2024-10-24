@@ -1,4 +1,4 @@
-m(list = ls()) # clear out the variables from memory to make a clean execution of the code.
+rm(list = ls()) # clear out the variables from memory to make a clean execution of the code.
 
 # If you want to remove all previous plots and clear the console, run the following two lines.
 graphics.off() # clear out all plots from previous work.
@@ -14,23 +14,14 @@ if(!require('tidyverse')) {
   install.packages('tidyverse')
   library('tidyverse')
 }
-
-# Importing the CSV file
-#fruits_data <- read.csv("path/to/your/fruits.csv")  # Update the path
-#head(fruits_data)  # View the first few rows
-#summary(fruits_data)  # Summary of the dataset
-
-
-
-
-# Install packages if you haven't already
-#install.packages("ggplot2")
-#install.packages("reshape2")
-
-# Load the libraries
-library(ggplot2)
-library(reshape2)
-
+if(!require('ggplot2')) {
+  install.packages('ggplot2')
+  library('ggplot2')
+}
+if(!require('reshape2')) {
+  install.packages('reshape2')
+  library('reshape2')
+}
 
 # Set seed for reproducibility
 set.seed(42)
