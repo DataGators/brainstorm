@@ -128,8 +128,8 @@ colors <- c("Red", "Yellow", "Pink", "Brown", "Purple")
 
 # Generate random sweetness levels
 sweetness_data <- matrix(sample(1:10, length(fruits) * length(colors), replace = TRUE),
-                         nrow = length(fruits),
-                         ncol = length(colors))
+    nrow = length(fruits),
+    ncol = length(colors))
 
 # Create a data frame
 heatmap_data <- as.data.frame(sweetness_data)
@@ -152,4 +152,3 @@ ggplot(heatmap_melted, aes(x = variable, y = Fruits, fill = value)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
   ```
-  
