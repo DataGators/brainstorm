@@ -1,10 +1,10 @@
-# R Code for Correlation Analysis with Synthetic Data
+# R Code for Creating a Heatmap of Fruit Sweetness Levels
 
-This document explains the R code used to generate synthetic data, calculate various types of correlations, and visualize the results with a scatter plot.
+This document explains the R code used to create a heatmap visualizing the sweetness levels of different fruits by color.
 
 ## 1. Clear Existing Variables and Outputs
 
-First, we clear out existing variables from memory to ensure a clean execution of the code.
+First, we clear existing variables from memory to ensure a clean execution of the code.
 
 ```r
 rm(list = ls())  # Clear out the variables from memory.
@@ -19,7 +19,7 @@ cat("\014")  # Clear the console.
 
 ## 2. Install and Load Necessary Libraries
 
-We check if the `tidyverse` and `ggplot2` libraries are installed. If they are not, then we install them and then load them.
+We check if the `tidyverse`, `ggplot2`, and `reshape2` libraries are installed. If they aren't, we install them and then load them.
 
 ```r
 if(!require('tidyverse')) {
@@ -31,74 +31,125 @@ if(!require('ggplot2')) {
   install.packages('ggplot2')  # Install ggplot2 if not already installed.
   library('ggplot2')  # Load the ggplot2 library.
 }
+
+if(!require('reshape2')) {
+  install.packages('reshape2')  # Install reshape2 if not already installed.
+  library('reshape2')  # Load the reshape2 library.
+}
 ```
 
-## 3. Set Seed and Generate Synthetic Data
+## 3. Set Seed and Create Synthetic Data
 
-We set a seed for reproducibility and generate synthetic data consisting of a linear relationship and a monotonic relationship.
+We set a seed for reproducibility and create synthetic data for fruits and their colors.
 
 ```r
 # Set seed for reproducibility
 set.seed(42)  # Set seed for random number generation.
 
-# Generate synthetic data
-n <- 100  # Number of data points
-x <- rnorm(n)  # Random normal variable
-y_linear <- 2 * x + rnorm(n, sd = 0.5)  # Linear relationship with some noise
-y_monotonic <- abs(x) + rnorm(n, sd = 0.5)  # Monotonic relationship with noise
+# Create synthetic data
+fruits <- c("Apple", "Banana", "Cherry", "Date", "Elderberry")  # Fruit names
+colors <- c("Red", "Yellow", "Pink", "Brown", "Purple")  # Fruit colors
 
-# Combine into a data frame
-data <- data.frame(x, y_linear, y_monotonic)  # Create a data frame from the generated data.
+# Generate random sweetness levels
+sweetness_data <- matrix(sample(1:10, length(fruits) * length(colors), replace = TRUE),
+    nrow = length(fruits),
+    ncol = length(colors))  # Create a matrix of random sweetness levels
 ```
 
-## 4. Calculate Correlations
+## 4. Create a Data Frame
 
-Next, we compute the Pearson, Spearman, and Kendall correlations for both `y_linear` and `y_monotonic`.
+Next, we create a data frame from the synthetic data and label the columns appropriately.
 
 ```r
-# Calculate correlations
-cor_pearson_linear <- cor(data$x, data$y_linear, method = "pearson")  # Pearson correlation for linear data
-cor_spearman_linear <- cor(data$x, data$y_linear, method = "spearman")  # Spearman correlation for linear data
-cor_kendall_linear <- cor(data$x, data$y_linear, method = "kendall")  # Kendall correlation for linear data
-
-cor_pearson_monotonic <- cor(data$x, data$y_monotonic, method = "pearson")  # Pearson correlation for monotonic data
-cor_spearman_monotonic <- cor(data$x, data$y_monotonic, method = "spearman")  # Spearman correlation for monotonic data
-cor_kendall_monotonic <- cor(data$x, data$y_monotonic, method = "kendall")  # Kendall correlation for monotonic data
+# Create a data frame
+heatmap_data <- as.data.frame(sweetness_data)  # Convert matrix to data frame
+colnames(heatmap_data) <- colors  # Set column names to colors
+heatmap_data$Fruits <- fruits  # Add fruits as a new column
 ```
 
-## 5. Print Correlation Results
+## 5. Reshape the Data for the Heatmap
 
-We print the correlation results for both relationships.
+We reshape the data into a long format suitable for creating a heatmap.
 
 ```r
-# Print correlation results
-cat("Linear Relationship Correlations:\n")
-cat("Pearson:", cor_pearson_linear, "\n")
-cat("Spearman:", cor_spearman_linear, "\n")
-cat("Kendall:", cor_kendall_linear, "\n\n")
-
-cat("Monotonic Relationship Correlations:\n")
-cat("Pearson:", cor_pearson_monotonic, "\n")
-cat("Spearman:", cor_spearman_monotonic, "\n")
-cat("Kendall:", cor_kendall_monotonic, "\n")
+# Reshape the data for heatmap
+heatmap_melted <- melt(heatmap_data, id.vars = "Fruits")  # Melt the data frame to long format
 ```
 
-## 6. Visualize the Data
+## 6. Create the Heatmap
 
-Finally, we create a scatter plot to visualize the linear and monotonic relationships.
+Finally, we create a heatmap using the reshaped data.
 
 ```r
-# Plotting
-ggplot(data) +
-  geom_point(aes(x = x, y = y_linear), color = "blue", alpha = 0.5) +  # Points for linear relationship
-  geom_point(aes(x = x, y = y_monotonic), color = "red", alpha = 0.5) +  # Points for monotonic relationship
-  labs(title = "Scatter Plot of Synthetic Data",
-       x = "X Values",
-       y = "Y Values") +  # Add labels
-  theme_minimal() +  # Use a minimal theme
-  theme(legend.position = "top") +  # Position the legend at the top
-  scale_color_manual(name = "Legend", values = c("Linear" = "blue", "Monotonic" = "red")) +  # Manual color scale
-  geom_smooth(aes(x = x, y = y_linear), method = "lm", color = "blue", se = FALSE) +  # Linear regression line
-  geom_smooth(aes(x = x, y = y_monotonic), method = "loess", color = "red", se = FALSE)  # LOESS curve
+# Create the heatmap
+ggplot(heatmap_melted, aes(x = variable, y = Fruits, fill = value)) +
+  geom_tile(color = "white") +  # Create tiles for the heatmap
+  scale_fill_gradient(low = "blue", high = "red") +  # Color gradient from blue to red
+  labs(title = "Sweetness Levels of Fruits by Color",  # Add title and labels
+       x = "Color",
+       y = "Fruit") +
+  theme_minimal() +  # Use a minimal theme for better aesthetics
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for better readability
 ```
+## 7. All Code Combined
 
+``` r
+rm(list = ls()) # clear out the variables from memory to make a clean execution of the code.
+
+# If you want to remove all previous plots and clear the console, run the following two lines.
+graphics.off() # clear out all plots from previous work.
+
+cat("\014") # clear the console
+
+#library(tidyverse)
+# A better way to code...
+# Find out if the library is not already installed and\
+# if not, install the library and then load it.
+
+if(!require('tidyverse')) {
+  install.packages('tidyverse')
+  library('tidyverse')
+}
+if(!require('ggplot2')) {
+  install.packages('ggplot2')
+  library('ggplot2')
+}
+if(!require('reshape2')) {
+  install.packages('reshape2')
+  library('reshape2')
+}
+
+# Set seed for reproducibility
+set.seed(42)
+
+# Create synthetic data
+fruits <- c("Apple", "Banana", "Cherry", "Date", "Elderberry")
+colors <- c("Red", "Yellow", "Pink", "Brown", "Purple")
+
+# Generate random sweetness levels
+sweetness_data <- matrix(sample(1:10, length(fruits) * length(colors), replace = TRUE),
+                         nrow = length(fruits),
+                         ncol = length(colors))
+
+# Create a data frame
+heatmap_data <- as.data.frame(sweetness_data)
+colnames(heatmap_data) <- colors
+heatmap_data$Fruits <- fruits
+
+# Reshape the data for heatmap
+heatmap_melted <- melt(heatmap_data, id.vars = "Fruits")
+
+
+
+
+# Create the heatmap
+ggplot(heatmap_melted, aes(x = variable, y = Fruits, fill = value)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "blue", high = "red") +
+  labs(title = "Sweetness Levels of Fruits by Color",
+       x = "Color",
+       y = "Fruit") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  ```
+  
